@@ -38,43 +38,48 @@ func (s *Store) execTx(ctx context.Context, fn func(queries *Queries) error) err
 	return tx.Commit()
 }
 
-type RouteSearchParams struct {
-	stopId sql.NullInt32
+type ExtendedTime struct {
+	StopTime
+	Trips  []Trip  `json:"trips"`
+	Routes []Route `json:"routes"`
 }
 
 type StopRouteInfo struct {
-	Times  []StopTime `json:"times"`
-	Trip   Trip       `json:"trip"`
-	Route  Route      `json:"route"`
-	Agency Agency     `json:"agency"`
+	Times []ExtendedTime `json:"times"`
 }
 
 // GetStopRouteInfo get detailed info about route
-func (s *Store) GetStopRouteInfo(ctx context.Context, searchParams RouteSearchParams) (StopRouteInfo, error) {
+func (s *Store) GetStopRouteInfo(ctx context.Context, stopId int32) (StopRouteInfo, error) {
 	var result StopRouteInfo
 
 	err := s.execTx(ctx, func(queries *Queries) error {
 		var err error
-		result.Times, err = queries.ListTimesByStop(ctx, searchParams.stopId)
-		if err != nil {
-			return err
-		}
-		if len(result.Times) == 0 {
-			return fmt.Errorf("no times found")
-		}
-		result.Trip, err = queries.GetTripById(ctx, result.Times[0].ID)
-		if err != nil {
-			return err
-		}
-		result.Route, err = queries.GetRouteById(ctx, result.Trip.RouteID)
-		if err != nil {
-			return err
-		}
-		result.Agency, err = queries.GetAgencyById(ctx, result.Route.AgencyID)
+		times, err := queries.ListTimesByStop(ctx, stopId)
 		if err != nil {
 			return err
 		}
 
+		if len(times) == 0 {
+			return fmt.Errorf("no times found")
+		}
+
+		for _, time := range times {
+			listedTrips, err := queries.ListTripsById(ctx, time.TripID)
+			if err != nil {
+				return err
+			}
+
+			routes := []Route{}
+			for _, trip := range listedTrips {
+				route, err := queries.GetRouteById(ctx, trip.RouteID)
+				if err != nil {
+					return err
+				}
+				routes = append(routes, route)
+			}
+
+			result.Times = append(result.Times, ExtendedTime{time, listedTrips, routes})
+		}
 		return err
 	})
 

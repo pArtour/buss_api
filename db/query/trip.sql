@@ -1,3 +1,3 @@
--- name: GetTripById :one
+-- name: ListTripsById :many
 SELECT * FROM trip
-WHERE id = $1;
+WHERE trip_id = $1;

@@ -1,3 +1,3 @@
 -- name: GetRouteById :one
 SELECT * FROM route
-WHERE id = $1;
+WHERE route_id = $1;

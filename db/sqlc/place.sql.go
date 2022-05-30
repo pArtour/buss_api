@@ -20,7 +20,7 @@ func (q *Queries) ListPlaces(ctx context.Context) ([]Place, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Place
+	items := []Place{}
 	for rows.Next() {
 		var i Place
 		if err := rows.Scan(&i.ID, &i.Name); err != nil {

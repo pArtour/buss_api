@@ -10,21 +10,21 @@ import (
 )
 
 const listStopsByPlace = `-- name: ListStopsByPlace :many
-SELECT id, code, name, lat, lon, zone_id, alias, area, "desc", lest_x, lest_y, zone_name, authority FROM stop
-WHERE to_tsvector('english', area) @@ to_tsquery('english', $1)
+SELECT stop_id, code, name, lat, lon, zone_id, alias, area, "desc", lest_x, lest_y, zone_name, authority FROM stop
+WHERE area LIKE $1
 `
 
-func (q *Queries) ListStopsByPlace(ctx context.Context, toTsquery string) ([]Stop, error) {
-	rows, err := q.db.QueryContext(ctx, listStopsByPlace, toTsquery)
+func (q *Queries) ListStopsByPlace(ctx context.Context, area string) ([]Stop, error) {
+	rows, err := q.db.QueryContext(ctx, listStopsByPlace, area)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Stop
+	items := []Stop{}
 	for rows.Next() {
 		var i Stop
 		if err := rows.Scan(
-			&i.ID,
+			&i.StopID,
 			&i.Code,
 			&i.Name,
 			&i.Lat,

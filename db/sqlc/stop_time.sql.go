@@ -7,30 +7,30 @@ package db
 
 import (
 	"context"
-	"database/sql"
 )
 
 const listTimesByStop = `-- name: ListTimesByStop :many
-SELECT id, trip_id, arrival_time, departure_time, stop_id, stop_sequence FROM stop_time
+SELECT trip_id, arrival_time, departure_time, stop_id, stop_sequence, pickup_type, drop_off_type FROM stop_time
 WHERE stop_id = $1
 `
 
-func (q *Queries) ListTimesByStop(ctx context.Context, stopID sql.NullInt32) ([]StopTime, error) {
+func (q *Queries) ListTimesByStop(ctx context.Context, stopID int32) ([]StopTime, error) {
 	rows, err := q.db.QueryContext(ctx, listTimesByStop, stopID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []StopTime
+	items := []StopTime{}
 	for rows.Next() {
 		var i StopTime
 		if err := rows.Scan(
-			&i.ID,
 			&i.TripID,
 			&i.ArrivalTime,
 			&i.DepartureTime,
 			&i.StopID,
 			&i.StopSequence,
+			&i.PickupType,
+			&i.DropOffType,
 		); err != nil {
 			return nil, err
 		}

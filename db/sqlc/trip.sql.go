@@ -9,21 +9,38 @@ import (
 	"context"
 )
 
-const getTripById = `-- name: GetTripById :one
-SELECT id, route_id, headsign, long_name, direction_code, wheelchair_accessible FROM trip
-WHERE id = $1
+const listTripsById = `-- name: ListTripsById :many
+SELECT route_id, service_id, trip_id, trip_headsign, trip_long_name, direction_code, wheelchair_accessible FROM trip
+WHERE trip_id = $1
 `
 
-func (q *Queries) GetTripById(ctx context.Context, id int32) (Trip, error) {
-	row := q.db.QueryRowContext(ctx, getTripById, id)
-	var i Trip
-	err := row.Scan(
-		&i.ID,
-		&i.RouteID,
-		&i.Headsign,
-		&i.LongName,
-		&i.DirectionCode,
-		&i.WheelchairAccessible,
-	)
-	return i, err
+func (q *Queries) ListTripsById(ctx context.Context, tripID int32) ([]Trip, error) {
+	rows, err := q.db.QueryContext(ctx, listTripsById, tripID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Trip{}
+	for rows.Next() {
+		var i Trip
+		if err := rows.Scan(
+			&i.RouteID,
+			&i.ServiceID,
+			&i.TripID,
+			&i.TripHeadsign,
+			&i.TripLongName,
+			&i.DirectionCode,
+			&i.WheelchairAccessible,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

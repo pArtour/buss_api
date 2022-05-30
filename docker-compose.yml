@@ -1,0 +1,26 @@
+version: "3.9"
+services:
+  postgres:
+    image: postgres:14.3-alpine
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=mysecret
+      - POSTGRES_DB=buss
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db_tables:/tables
+#      - ./seed.sh:/seed.sh
+#    entrypoint: ["/seed.sh"]
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_SOURCE=postgresql://root:mysecret@postgres:5432/buss?sslmode=disable
+    depends_on:
+      - postgres
+    entrypoint: ["/app/wait-for.sh", "postgres:5432", "--", "/app/start.sh"]
+    command: ["/app/main"]

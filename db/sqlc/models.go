@@ -8,60 +8,52 @@ import (
 	"database/sql"
 )
 
-type Agency struct {
-	ID       int32          `json:"id"`
-	Name     sql.NullString `json:"name"`
-	Url      sql.NullString `json:"url"`
-	Timezone sql.NullString `json:"timezone"`
-	Phone    sql.NullString `json:"phone"`
-	Lang     sql.NullString `json:"lang"`
-}
-
 type Place struct {
-	ID   int32          `json:"id"`
-	Name sql.NullString `json:"name"`
+	ID   int32  `json:"id"`
+	Name string `json:"name"`
 }
 
 type Route struct {
-	ID                 int32          `json:"id"`
-	AgencyID           int32          `json:"agency_id"`
-	ShortName          sql.NullString `json:"short_name"`
-	LongName           sql.NullString `json:"long_name"`
-	Color              sql.NullString `json:"color"`
-	CompetentAuthority sql.NullString `json:"competent_authority"`
-	Desc               sql.NullString `json:"desc"`
+	RouteID        string         `json:"route_id"`
+	AgencyID       sql.NullInt32  `json:"agency_id"`
+	RouteShortName sql.NullString `json:"route_short_name"`
+	RouteLongName  sql.NullString `json:"route_long_name"`
+	RouteType      sql.NullString `json:"route_type"`
+	RouteColor     sql.NullString `json:"route_color"`
 }
 
 type Stop struct {
-	ID        int32           `json:"id"`
-	Code      sql.NullString  `json:"code"`
-	Name      sql.NullString  `json:"name"`
-	Lat       sql.NullFloat64 `json:"lat"`
-	Lon       sql.NullFloat64 `json:"lon"`
-	ZoneID    int32           `json:"zone_id"`
-	Alias     sql.NullString  `json:"alias"`
-	Area      sql.NullString  `json:"area"`
-	Desc      sql.NullString  `json:"desc"`
-	LestX     sql.NullFloat64 `json:"lest_x"`
-	LestY     sql.NullFloat64 `json:"lest_y"`
-	ZoneName  sql.NullString  `json:"zone_name"`
-	Authority sql.NullString  `json:"authority"`
+	StopID    int32          `json:"stop_id"`
+	Code      sql.NullString `json:"code"`
+	Name      string         `json:"name"`
+	Lat       float64        `json:"lat"`
+	Lon       float64        `json:"lon"`
+	ZoneID    int32          `json:"zone_id"`
+	Alias     sql.NullString `json:"alias"`
+	Area      string         `json:"area"`
+	Desc      sql.NullString `json:"desc"`
+	LestX     float64        `json:"lest_x"`
+	LestY     float64        `json:"lest_y"`
+	ZoneName  sql.NullString `json:"zone_name"`
+	Authority sql.NullString `json:"authority"`
 }
 
 type StopTime struct {
-	ID            int32          `json:"id"`
-	TripID        int32          `json:"trip_id"`
-	ArrivalTime   sql.NullString `json:"arrival_time"`
-	DepartureTime sql.NullString `json:"departure_time"`
-	StopID        sql.NullInt32  `json:"stop_id"`
-	StopSequence  sql.NullInt32  `json:"stop_sequence"`
+	TripID        int32         `json:"trip_id"`
+	ArrivalTime   string        `json:"arrival_time"`
+	DepartureTime string        `json:"departure_time"`
+	StopID        int32         `json:"stop_id"`
+	StopSequence  sql.NullInt32 `json:"stop_sequence"`
+	PickupType    sql.NullInt32 `json:"pickup_type"`
+	DropOffType   sql.NullInt32 `json:"drop_off_type"`
 }
 
 type Trip struct {
-	ID                   int32          `json:"id"`
-	RouteID              int32          `json:"route_id"`
-	Headsign             sql.NullString `json:"headsign"`
-	LongName             sql.NullString `json:"long_name"`
+	RouteID              string         `json:"route_id"`
+	ServiceID            int32          `json:"service_id"`
+	TripID               int32          `json:"trip_id"`
+	TripHeadsign         sql.NullString `json:"trip_headsign"`
+	TripLongName         sql.NullString `json:"trip_long_name"`
 	DirectionCode        sql.NullString `json:"direction_code"`
-	WheelchairAccessible sql.NullBool   `json:"wheelchair_accessible"`
+	WheelchairAccessible sql.NullInt32  `json:"wheelchair_accessible"`
 }

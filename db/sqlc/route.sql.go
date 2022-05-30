@@ -10,21 +10,20 @@ import (
 )
 
 const getRouteById = `-- name: GetRouteById :one
-SELECT id, agency_id, short_name, long_name, color, competent_authority, "desc" FROM route
-WHERE id = $1
+SELECT route_id, agency_id, route_short_name, route_long_name, route_type, route_color FROM route
+WHERE route_id = $1
 `
 
-func (q *Queries) GetRouteById(ctx context.Context, id int32) (Route, error) {
-	row := q.db.QueryRowContext(ctx, getRouteById, id)
+func (q *Queries) GetRouteById(ctx context.Context, routeID string) (Route, error) {
+	row := q.db.QueryRowContext(ctx, getRouteById, routeID)
 	var i Route
 	err := row.Scan(
-		&i.ID,
+		&i.RouteID,
 		&i.AgencyID,
-		&i.ShortName,
-		&i.LongName,
-		&i.Color,
-		&i.CompetentAuthority,
-		&i.Desc,
+		&i.RouteShortName,
+		&i.RouteLongName,
+		&i.RouteType,
+		&i.RouteColor,
 	)
 	return i, err
 }
